@@ -17,6 +17,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    struct Display {
+        let number: Int
+        let display: Any
+    }
+
+    var displayCounter = 0
+    var displays = [Int: Display]()
+
     let predefResolutions: [Resolution] = [
       // List from https://en.wikipedia.org/wiki/Graphics_display_resolution and
       // https://www.theverge.com/tldr/2016/3/21/11278192/apple-iphone-ipad-screen-sizes-pixels-density-so-many-choices
@@ -49,10 +57,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     var statusBarItem: NSStatusItem!
 
-    var deleteMenu: NSMenu?
-
-    var displayCounter = 0
-    var displays = [Any]()
+    var deleteMenu = NSMenu()
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         self.statusBarItem = NSStatusBar.system.statusItem(withLength: CGFloat(NSStatusItem.variableLength))
@@ -61,12 +66,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         let menu = NSMenu()
-        let newMenuItem = NSMenuItem(title: "New", action: nil, keyEquivalent: "")
+        let newMenuItem = NSMenuItem(title: "New Virtual Display", action: nil, keyEquivalent: "")
         let newMenu = NSMenu()
 
         var i = 0
         for size in predefResolutions {
-            let item = NSMenuItem(title: "\(size.width)x\(size.height) (\(size.description))", action: #selector(newDisplay(_:)), keyEquivalent: "")
+            let item = NSMenuItem(title: "\(size.width)×\(size.height) (\(size.description))", action: #selector(newDisplay(_:)), keyEquivalent: "")
             item.tag = i
             newMenu.addItem(item)
             i += 1
@@ -75,9 +80,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         newMenuItem.submenu = newMenu
         menu.addItem(newMenuItem)
 
-        let deleteMenuItem = NSMenuItem(title: "Delete", action: nil, keyEquivalent: "")
-        deleteMenu = NSMenu()
-        deleteMenuItem.submenu = newMenu
+        let deleteMenuItem = NSMenuItem(title: "Delete Virtual Display", action: nil, keyEquivalent: "")
+        deleteMenuItem.submenu = deleteMenu
         menu.addItem(deleteMenuItem)
 
         menu.addItem(NSMenuItem.separator())
@@ -90,11 +94,21 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         if let menuItem = sender as? NSMenuItem {
             if menuItem.tag >= 0 && menuItem.tag < predefResolutions.count {
                 let resolution = predefResolutions[menuItem.tag]
-                if let display = createVirtualDisplay(resolution.width, resolution.height, resolution.ppi, "#\(displayCounter)") {
-                    displays.append(display)
+                let name = "#\(displayCounter)"
+                if let display = createVirtualDisplay(resolution.width, resolution.height, resolution.ppi, name) {
+                    displays[displayCounter] = Display(number: displayCounter, display: display)
+                    let deleteMenuItem = NSMenuItem(title: "\(name) (\(resolution.width)×\(resolution.height))", action: #selector(deleteDisplay(_:)), keyEquivalent: "")
+                    deleteMenuItem.tag = displayCounter
+                    deleteMenu.addItem(deleteMenuItem)
                     displayCounter += 1
                 }
             }
+        }
+    }
+
+    @objc func deleteDisplay(_ sender: AnyObject?) {
+        if let menuItem = sender as? NSMenuItem {
+            displays[menuItem.tag] = nil
         }
     }
 }
