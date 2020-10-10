@@ -109,6 +109,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     @objc func deleteDisplay(_ sender: AnyObject?) {
         if let menuItem = sender as? NSMenuItem {
             displays[menuItem.tag] = nil
+            menuItem.menu?.removeItem(menuItem)
         }
     }
 }
