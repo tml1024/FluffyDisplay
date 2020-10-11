@@ -11,7 +11,6 @@
 		BEB26A472530B2F700744C86 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BEB26A462530B2F700744C86 /* Assets.xcassets */; };
 		BEB26A4A2530B2F700744C86 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BEB26A492530B2F700744C86 /* Preview Assets.xcassets */; };
 		BEB26A4D2530B2F700744C86 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = BEB26A4B2530B2F700744C86 /* Main.storyboard */; };
-		BEB26A572530B51000744C86 /* include in Resources */ = {isa = PBXBuildFile; fileRef = BEB26A562530B51000744C86 /* include */; };
 		BEB26A792531163C00744C86 /* VirtualDisplay.m in Sources */ = {isa = PBXBuildFile; fileRef = BEB26A782531163C00744C86 /* VirtualDisplay.m */; };
 /* End PBXBuildFile section */
 
@@ -142,7 +141,6 @@
 				BEB26A4D2530B2F700744C86 /* Main.storyboard in Resources */,
 				BEB26A4A2530B2F700744C86 /* Preview Assets.xcassets in Resources */,
 				BEB26A472530B2F700744C86 /* Assets.xcassets in Resources */,
-				BEB26A572530B51000744C86 /* include in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
