@@ -1,9 +1,5 @@
 // -*- Mode: ObjC; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4; fill-column: 100 -*-
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #import <CoreGraphics/CoreGraphics.h>
 #import <Foundation/Foundation.h>
 
@@ -14,28 +10,9 @@
 
 #import "VirtualDisplay.h"
 
-static char *rot13(char *p) {
-    char *result = strdup(p);
-    p = result;
-    while (*p) {
-        if (*p >= 'A' && *p <= 'Z')
-            *p = 'A' + ((*p - 'A' + 13) % 26);
-        else if (*p >= 'a' && *p <= 'z')
-            *p = 'a' + ((*p - 'a' + 13) % 26);
-        p++;
-    }
-    return result;
-}
-
 id createVirtualDisplay(int width, int height, int ppi, NSString *name) {
 
-    NSString *CGVirtualDisplaySettingsClassName = [NSString stringWithUTF8String:rot13("PTIveghnyQvfcynlFrggvatf")];
-    Class CGVirtualDisplaySettingsClass = NSClassFromString(CGVirtualDisplaySettingsClassName);
-
-    SEL alloc = NSSelectorFromString(@"alloc");
-    CGVirtualDisplaySettings *settings =
-        [((id (*)(id, SEL))[CGVirtualDisplaySettingsClass methodForSelector:alloc])(CGVirtualDisplaySettingsClass, alloc) init];
-
+    CGVirtualDisplaySettings *settings = [[CGVirtualDisplaySettings alloc] init];
     settings.hiDPI = ppi >= 200;
 
     if (settings.hiDPI) {
@@ -43,11 +20,7 @@ id createVirtualDisplay(int width, int height, int ppi, NSString *name) {
         height /= 2;
     }
 
-    NSString *CGVirtualDisplayDescriptorClassName = [NSString stringWithUTF8String:rot13("PTIveghnyQvfcynlQrfpevcgbe")];
-    Class CGVirtualDisplayDescriptorClass = NSClassFromString(CGVirtualDisplayDescriptorClassName);
-
-    CGVirtualDisplayDescriptor *descriptor =
-        [((id (*)(id, SEL))[CGVirtualDisplayDescriptorClass methodForSelector:alloc])(CGVirtualDisplayDescriptorClass, alloc) init];
+    CGVirtualDisplayDescriptor *descriptor = [[CGVirtualDisplayDescriptor alloc] init];
     descriptor.queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
     descriptor.name = name;
 
@@ -63,19 +36,11 @@ id createVirtualDisplay(int width, int height, int ppi, NSString *name) {
     descriptor.productID = 0;
     descriptor.vendorID = 0;
 
-    NSString *CGVirtualDisplayClassName = [NSString stringWithUTF8String:rot13("PTIveghnyQvfcynl")];
-    Class CGVirtualDisplayClass = NSClassFromString(CGVirtualDisplayClassName);
+    CGVirtualDisplay *display = [[CGVirtualDisplay alloc] initWithDescriptor:descriptor];
 
-    CGVirtualDisplay *display =
-        [((id (*)(id, SEL))[CGVirtualDisplayClass methodForSelector:alloc])(CGVirtualDisplayClass, alloc) initWithDescriptor:descriptor];
-
-    NSString *CGVirtualDisplayModeClassName = [NSString stringWithUTF8String:rot13("PTIveghnyQvfcynlZbqr")];
-    Class CGVirtualDisplayModeClass = NSClassFromString(CGVirtualDisplayModeClassName);
-
-    CGVirtualDisplayMode *mode =
-        [((id (*)(id, SEL))[CGVirtualDisplayModeClass methodForSelector:alloc])(CGVirtualDisplayModeClass, alloc) initWithWidth:descriptor.maxPixelsWide
-                                                                                                                         height:descriptor.maxPixelsHigh
-                                                                                                                    refreshRate:60];
+    CGVirtualDisplayMode *mode = [[CGVirtualDisplayMode alloc] initWithWidth:descriptor.maxPixelsWide
+                                                                      height:descriptor.maxPixelsHigh
+                                                                 refreshRate:60];
     settings.modes = @[mode];
 
     if (![display applySettings:settings])
