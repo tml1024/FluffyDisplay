@@ -56,7 +56,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     var statusBarItem: NSStatusItem!
 
-    var deleteMenu = NSMenu()
+    let deleteMenu = NSMenu()
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         self.statusBarItem = NSStatusBar.system.statusItem(withLength: CGFloat(NSStatusItem.variableLength))
