@@ -4,7 +4,7 @@ import Cocoa
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
-    
+
     struct Resolution {
         let width, height, ppi: Int32
         let description: String
@@ -88,7 +88,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         statusBarItem.menu = menu
     }
-    
+
     @objc func newDisplay(_ sender: AnyObject?) {
         if let menuItem = sender as? NSMenuItem {
             if menuItem.tag >= 0 && menuItem.tag < predefResolutions.count {
