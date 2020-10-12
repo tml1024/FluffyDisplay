@@ -40,8 +40,8 @@ Problems and future work
 
 Even if you move the cursor of the main Mac off the virtual display
 (that is showing in Screen Sharing on the other Mac), there is still a
-"ghost" cursor moving on the in the Screen Sharing window. That is
-highly irritating and misleading.
+"ghost" cursor moving in the Screen Sharing window. That is highly
+irritating and misleading.
 
 The use is a bit too complicated. It needs to be made much simpler
 before actual end-users will be able to use it. One way that I have
