@@ -135,7 +135,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
         if let menuItem = sender as? NSMenuItem {
             if menuItem.tag >= 0 && menuItem.tag < predefResolutions.count {
                 let resolution = predefResolutions[menuItem.tag]
-                let name = "#\(displayCounter)"
+                let name = "FluffyDisplay Virtual Display #\(displayCounter)"
                 if let display = createVirtualDisplay(resolution.width, resolution.height, resolution.ppi, name) {
                     displays[displayCounter] = Display(number: displayCounter, display: display)
                     let deleteMenuItem = NSMenuItem(title: "\(name) (\(resolution.width)×\(resolution.height))", action: #selector(deleteDisplay(_:)), keyEquivalent: "")
