@@ -57,6 +57,13 @@ by writing a .vncloc file and opening that using NSWorkSpace's
 open(_:configuration:completionHandler:) method but I don't know how
 to force Screen Sharing into full-screen mode.
 
+Will it work on macOS 11?
+-------------------------
+
+I don't know. Quite possibly not, in which case this has been just an
+interesting experiment with little permanent usefulness.
+
+
 Will there be binaries?
 -----------------------
 
