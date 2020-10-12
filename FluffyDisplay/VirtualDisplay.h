@@ -2,4 +2,4 @@
 
 #import <Foundation/Foundation.h>
 
-id createVirtualDisplay(int width, int height, int ppi, NSString *name);
+id createVirtualDisplay(int width, int height, int ppi, BOOL hiDPI, NSString *name);

@@ -10,15 +10,10 @@
 
 #import "VirtualDisplay.h"
 
-id createVirtualDisplay(int width, int height, int ppi, NSString *name) {
+id createVirtualDisplay(int width, int height, int ppi, BOOL hiDPI, NSString *name) {
 
     CGVirtualDisplaySettings *settings = [[CGVirtualDisplaySettings alloc] init];
-    settings.hiDPI = ppi >= 200;
-
-    if (settings.hiDPI) {
-        width /= 2;
-        height /= 2;
-    }
+    settings.hiDPI = hiDPI;
 
     CGVirtualDisplayDescriptor *descriptor = [[CGVirtualDisplayDescriptor alloc] init];
     descriptor.queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
@@ -38,8 +33,12 @@ id createVirtualDisplay(int width, int height, int ppi, NSString *name) {
 
     CGVirtualDisplay *display = [[CGVirtualDisplay alloc] initWithDescriptor:descriptor];
 
-    CGVirtualDisplayMode *mode = [[CGVirtualDisplayMode alloc] initWithWidth:descriptor.maxPixelsWide
-                                                                      height:descriptor.maxPixelsHigh
+    if (settings.hiDPI) {
+        width /= 2;
+        height /= 2;
+    }
+    CGVirtualDisplayMode *mode = [[CGVirtualDisplayMode alloc] initWithWidth:width
+                                                                      height:height
                                                                  refreshRate:60];
     settings.modes = @[mode];
 

@@ -103,7 +103,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
 
         let menu = NSMenu()
 
-        let newMenuItem = NSMenuItem(title: "New", action: nil, keyEquivalent: "")
+        let newMenuItem = NSMenuItem(title: "New (manual)", action: nil, keyEquivalent: "")
         let newMenu = NSMenu()
 
         var i = 0
@@ -117,7 +117,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
         newMenuItem.submenu = newMenu
         menu.addItem(newMenuItem)
 
-        let autoMenuItem = NSMenuItem(title: "New for discovered", action: nil, keyEquivalent: "")
+        let autoMenuItem = NSMenuItem(title: "New (partially automated)", action: nil, keyEquivalent: "")
         autoMenuItem.submenu = autoMenu
         menu.addItem(autoMenuItem)
 
@@ -136,7 +136,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
             if menuItem.tag >= 0 && menuItem.tag < predefResolutions.count {
                 let resolution = predefResolutions[menuItem.tag]
                 let name = "FluffyDisplay Virtual Display #\(displayCounter)"
-                if let display = createVirtualDisplay(resolution.width, resolution.height, resolution.ppi, name) {
+                if let display = createVirtualDisplay(resolution.width, resolution.height, resolution.ppi, resolution.hiDPI, name) {
                     displays[displayCounter] = Display(number: displayCounter, display: display)
                     let deleteMenuItem = NSMenuItem(title: "\(name) (\(resolution.width)×\(resolution.height))", action: #selector(deleteDisplay(_:)), keyEquivalent: "")
                     deleteMenuItem.tag = displayCounter
