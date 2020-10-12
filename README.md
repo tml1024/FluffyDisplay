@@ -23,7 +23,7 @@ virtual one is on the side of the built-in display where you put your
 old iMac.
 
 You then use Screen Sharing app on the other Mac to connect to your
-main Mac, and specifically select to in the View menu to view the
+main Mac, and specifically select in the View menu to view the
 "virtual" monitor. You switch Screen Sharing to observation mode and
 to full-screen. You then don't need to touch the mouse, trackpad or
 keyboard on the other Mac until you want to close the connection.
