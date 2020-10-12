@@ -70,6 +70,13 @@ Will there be binaries?
 Sure, once my dog-fooding is complete.
 
 
+In the Mac App Store?
+---------------------
+
+No way. It uses undocumented CoreGraphics APIs and requires the
+com.apple.security.temporary-exception.mach-lookup.global-name
+entitlement.
+
 If you find this useful
 -----------------------
 
