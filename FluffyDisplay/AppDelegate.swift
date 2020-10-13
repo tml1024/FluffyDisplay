@@ -149,8 +149,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
         deleteMenuItem.submenu = deleteMenu
         menu.addItem(deleteMenuItem)
 
-        menu.addItem(NSMenuItem(title: "Experiment", action: #selector(experiment(_:)), keyEquivalent: ""))
-
         menu.addItem(NSMenuItem.separator())
         menu.addItem(NSMenuItem(title: "Quit FluffyDisplay", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
 
@@ -204,19 +202,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
         if let menuItem = sender as? NSMenuItem {
             virtualDisplays[menuItem.tag] = nil
             menuItem.menu?.removeItem(menuItem)
-        }
-    }
-
-    @objc func experiment(_ sender: AnyObject?) {
-        let configuration = NSWorkspace.OpenConfiguration()
-        configuration.createsNewApplicationInstance = true
-
-        if let url = URL(string: "vnc://ynk.local") {
-            NSWorkspace.shared.open(url, configuration: configuration) { application, error in
-                if error != nil {
-                    print("opening the vnc URL \(url) failed: \(error!)");
-                }
-            }
         }
     }
 
