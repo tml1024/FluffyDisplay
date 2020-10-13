@@ -43,19 +43,13 @@ Even if you move the cursor of the main Mac off the virtual display
 "ghost" cursor moving in the Screen Sharing window. That is highly
 irritating and misleading.
 
-The use is a bit too complicated. It needs to be made much simpler
-before actual end-users will be able to use it. One way that I have
-already started on is to require running FluffyDisplay on both the
-Macs. There already is code that advertises (in DNS-SD TXT records) to
-FluffyDisplay apps running on other Macs in the local net what
-displays are available on their Mac, and that is used by FluffyDisplay
-apps running on other Macs to generate a menu of suitable resolutions.
-
-But what is missing is code to tell FluffyDisplay on the other Mac to
-start Screen Sharing. Passing the right display to use can be handled
-by writing a .vncloc file and opening that using NSWorkSpace's
-open(_:configuration:completionHandler:) method but I don't know how
-to force Screen Sharing into full-screen mode.
+The use is a bit too complicated. But I suspect that it can't be made
+much simpler while still being able to run FluffyDisplay as a
+sandboxed app. And that is something I definitely want to do.
+End-users should not run random non-sandboxed apps downloaded from the
+Internet, period. I don't trust such apps, and it would be rude to
+expect people who download an ready-built FluffyDisplay app in the
+future to trust it.
 
 Will it work on macOS 11?
 -------------------------
@@ -64,10 +58,17 @@ I don't know. Quite possibly not, in which case this has been just an
 interesting experiment with little permanent usefulness.
 
 
+What if Apple at some stage starts providing the same functionality
+-------------------------------------------------------------------
+
+(In the same way as Sidecar works for an iPad.) I would welcome that
+very much.
+
 Will there be binaries?
 -----------------------
 
-Sure, once my dog-fooding is complete.
+Sure, once my dog-fooding is complete. Also, see the security points
+above.
 
 
 In the Mac App Store?
