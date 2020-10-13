@@ -93,6 +93,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
 
     var discoveredServices = [String: NetService]()
 
+    let debug = amIBeingDebugged()
+
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         let maxDisplays: Int32 = 5
         var activeDisplayIDs = [CGDirectDisplayID](repeating: 0, count: Int(maxDisplays))
@@ -219,14 +221,27 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
         return nil
     }
 
+    static func amIBeingDebugged() -> Bool {
+        var info = kinfo_proc()
+        var mib : [Int32] = [CTL_KERN, KERN_PROC, KERN_PROC_PID, getpid()]
+        var size = MemoryLayout<kinfo_proc>.stride
+        let junk = sysctl(&mib, UInt32(mib.count), &info, &size, nil, 0)
+        assert(junk == 0, "sysctl failed")
+        return (info.kp_proc.p_flag & P_TRACED) != 0
+    }
+
     // NetServiceDelegate
 
     func netService(_ sender: NetService, didNotPublish errorDict: [String : NSNumber]) {
-        print("Did not publish: \(sender), because: \(errorDict)")
+        if debug {
+            print("Did not publish: \(sender), because: \(errorDict)")
+        }
     }
 
     func netServiceDidPublish(_ sender: NetService) {
-        // print("Published: \(sender)")
+        if debug {
+            print("Published: \(sender)")
+        }
         var txtDict = [String: Data]()
         var i = 0
         txtDict["ndisplays"] = "\(activeDisplays.count)".data(using: .utf8)
@@ -241,16 +256,22 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
         }
         let txtData = NetService.data(fromTXTRecord: txtDict)
         if !sender.setTXTRecord(txtData) {
-            print("Did not set txtRecord")
+            if debug {
+                print("Did not set txtRecord")
+            }
         }
     }
 
     func netService(_ sender: NetService, didUpdateTXTRecord data: Data) {
-        print("Got updated TXT record of: \(sender.name): \(data.count) bytes");
+        if debug {
+            print("Got updated TXT record of: \(sender.name): \(data.count) bytes");
+        }
         if sender.name != ns.name {
             let dict = NetService.dictionary(fromTXTRecord: data)
             if  let ndisplays = AppDelegate.intInDict(dict, "ndisplays") {
-                print("\(sender.name) has \(ndisplays) display(s)")
+                if debug {
+                    print("\(sender.name) has \(ndisplays) display(s)")
+                }
 
                 // Delete old menu entries for the peer's displays
                 for item in autoMenu.items {
@@ -286,25 +307,31 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
     }
 
     func netServiceDidStop(_ sender: NetService) {
-        print("Stopped: \(sender)")
+        if debug {
+            print("Stopped: \(sender)")
+        }
     }
 
     func netService(_ sender: NetService, didAcceptConnectionWith inputStream: InputStream, outputStream: OutputStream) {
-        print("Accepted connection: \(sender)")
-        // print(try! inputStream.readString() ?? "")
-        // try! outputStream.write(from: "Hello, world!")
+        if debug {
+            print("Accepted connection: \(sender)")
+        }
         inputStream.close()
     }
 
     // NetServiceBrowserDelegate
 
     func netServiceBrowser(_ browser: NetServiceBrowser, didNotSearch errorDict: [String : NSNumber]) {
-        print("Did not search: \(errorDict)")
+        if debug {
+            print("Did not search: \(errorDict)")
+        }
     }
 
     func netServiceBrowser(_ browser: NetServiceBrowser, didFind service: NetService, moreComing: Bool) {
         if service.name != ns.name {
-            // print("Found: \(service.name)")
+            if debug {
+                print("Found: \(service.name)")
+            }
             discoveredServices[service.name] = service;
             service.delegate = self
             service.startMonitoring()
@@ -313,7 +340,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
 
     func netServiceBrowser(_ browser: NetServiceBrowser, didRemove service: NetService, moreComing: Bool) {
         if service.name != ns.name {
-            print("Removed: \(service.name)")
+            if debug {
+                print("Removed: \(service.name)")
+            }
             if discoveredServices[service.name] != nil {
                 discoveredServices[service.name] = nil
             }
@@ -324,7 +353,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
     }
 
     func netServiceBrowserDidStopSearch(_ browser: NetServiceBrowser) {
-        print("Did stop: \(browser)")
+        if debug {
+            print("Did stop: \(browser)")
+        }
     }
 
 }
