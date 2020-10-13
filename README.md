@@ -79,8 +79,9 @@ interesting experiment with little permanent usefulness.
 What if Apple at some stage starts providing the same functionality
 -------------------------------------------------------------------
 
-(In the same way as Sidecar works for an iPad.) I would welcome that
-very much.
+(In the same way as Sidecar, for use with iPad.) I would welcome that
+very much. They would be able to make the user experience much
+smoother than what this tool offers.
 
 Will there be binaries?
 -----------------------
