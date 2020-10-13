@@ -43,13 +43,31 @@ Even if you move the cursor of the main Mac off the virtual display
 "ghost" cursor moving in the Screen Sharing window. That is highly
 irritating and misleading.
 
-The use is a bit too complicated. But I suspect that it can't be made
-much simpler while still being able to run FluffyDisplay as a
-sandboxed app. And that is something I definitely want to do.
+The use is a bit too complicated, but see the next section.
+
+Security aspects
+----------------
+
+I suspect that the use of FluffyDisplay can't be made much simpler or
+automated while still being able to run FluffyDisplay as a sandboxed
+app. (With automating, I mean that you wouldn't need to start Screen
+Sharing manually and select the right display to view in Screen
+Sharing, but that it would happen automatically.)
+
+Sandboxing and notarization is something I definitely want to keep.
 End-users should not run random non-sandboxed apps downloaded from the
 Internet, period. I don't trust such apps, and it would be rude to
 expect people who download an ready-built FluffyDisplay app in the
 future to trust it.
+
+As this is open source, I can't prevent a third party from taking this
+code (or just taking inspiration) and producing something similar.
+After all, I wrote this in a weekend, somebody else can do it too.
+That might then be distributed as a non-sandboxed app that works in a
+much more automated fashion. But end-users should then be aware that
+such an app could potentially be a very large security risk. When I
+start distributing a ready-built app, it will be sigitally signed and
+securely timestamped,, notarized, and run sandboxed.
 
 Will it work on macOS 11?
 -------------------------
