@@ -29,6 +29,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
             self.hiDPI = hiDPI
             self.description = description
         }
+        init(_ width: Int, _ height: Int, _ ppi: Int, _ hiDPI: Bool, _ description: String) {
+            self.init(Int32(width), Int32(height), Int32(ppi), hiDPI, description)
+        }
     }
 
     let predefResolutions: [Resolution] = [
@@ -61,13 +64,23 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
 
     var activeDisplays = [Resolution]()
 
-    struct Display {
+    // Represents one local virtual display
+    struct VirtualDisplay {
         let number: Int
         let display: Any
     }
 
-    var displayCounter = 0
-    var displays = [Int: Display]()
+    var virtualDisplayCounter = 0
+    var virtualDisplays = [Int: VirtualDisplay]()
+
+    // Represents one (real) display on a peer running FluffyDisplay
+    struct PeerDisplay {
+        let number: Int
+        let peer: String
+        let resolution: Resolution
+    }
+    var peerDisplayCounter = 0
+    var peerDisplays = [Int: PeerDisplay]()
 
     var statusBarItem: NSStatusItem!
 
@@ -81,7 +94,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
     var discoveredServices = [String: NetService]()
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
-
         let maxDisplays: Int32 = 5
         var activeDisplayIDs = [CGDirectDisplayID](repeating: 0, count: Int(maxDisplays))
         var activeDisplayCount: UInt32 = 0
@@ -115,7 +127,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
 
         let menu = NSMenu()
 
-        let newMenuItem = NSMenuItem(title: "New (manual)", action: nil, keyEquivalent: "")
+        let newMenuItem = NSMenuItem(title: "New", action: nil, keyEquivalent: "")
         let newMenu = NSMenu()
 
         var i = 0
@@ -129,13 +141,15 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
         newMenuItem.submenu = newMenu
         menu.addItem(newMenuItem)
 
-        let autoMenuItem = NSMenuItem(title: "New (partially automated)", action: nil, keyEquivalent: "")
+        let autoMenuItem = NSMenuItem(title: "New for peer display", action: nil, keyEquivalent: "")
         autoMenuItem.submenu = autoMenu
         menu.addItem(autoMenuItem)
 
         let deleteMenuItem = NSMenuItem(title: "Delete", action: nil, keyEquivalent: "")
         deleteMenuItem.submenu = deleteMenu
         menu.addItem(deleteMenuItem)
+
+        menu.addItem(NSMenuItem(title: "Experiment", action: #selector(experiment(_:)), keyEquivalent: ""))
 
         menu.addItem(NSMenuItem.separator())
         menu.addItem(NSMenuItem(title: "Quit FluffyDisplay", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
@@ -147,13 +161,19 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
         if let menuItem = sender as? NSMenuItem {
             if menuItem.tag >= 0 && menuItem.tag < predefResolutions.count {
                 let resolution = predefResolutions[menuItem.tag]
-                let name = "FluffyDisplay Virtual Display #\(displayCounter)"
-                if let display = createVirtualDisplay(resolution.width, resolution.height, resolution.ppi, resolution.hiDPI, name) {
-                    displays[displayCounter] = Display(number: displayCounter, display: display)
-                    let deleteMenuItem = NSMenuItem(title: "\(name) (\(resolution.width)×\(resolution.height))", action: #selector(deleteDisplay(_:)), keyEquivalent: "")
-                    deleteMenuItem.tag = displayCounter
+                let name = "FluffyDisplay Virtual Display #\(virtualDisplayCounter)"
+                if let display = createVirtualDisplay(resolution.width,
+                                                      resolution.height,
+                                                      resolution.ppi,
+                                                      resolution.hiDPI,
+                                                      name) {
+                    virtualDisplays[virtualDisplayCounter] = VirtualDisplay(number: virtualDisplayCounter, display: display)
+                    let deleteMenuItem = NSMenuItem(title: "\(name) (\(resolution.width)×\(resolution.height))",
+                                                    action: #selector(deleteDisplay(_:)),
+                                                    keyEquivalent: "")
+                    deleteMenuItem.tag = virtualDisplayCounter
                     deleteMenu.addItem(deleteMenuItem)
-                    displayCounter += 1
+                    virtualDisplayCounter += 1
                 }
             }
         }
@@ -161,21 +181,55 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
 
     @objc func newAutoDisplay(_ sender: AnyObject?) {
         if let menuItem = sender as? NSMenuItem {
+            if menuItem.tag >= 0 && menuItem.tag < peerDisplays.count {
+                if let peerDisplay = peerDisplays[menuItem.tag],
+                   let display = createVirtualDisplay(peerDisplay.resolution.width,
+                                                      peerDisplay.resolution.height,
+                                                      peerDisplay.resolution.ppi,
+                                                      peerDisplay.resolution.hiDPI,
+                                                      peerDisplay.resolution.description) {
+                    virtualDisplays[virtualDisplayCounter] = VirtualDisplay(number: virtualDisplayCounter, display: display)
+                    let deleteMenuItem = NSMenuItem(title: peerDisplay.resolution.description,
+                                                    action: #selector(deleteDisplay(_:)),
+                                                    keyEquivalent: "")
+                    deleteMenuItem.tag = virtualDisplayCounter
+                    deleteMenu.addItem(deleteMenuItem)
+                    virtualDisplayCounter += 1
+                }
+            }
         }
     }
 
     @objc func deleteDisplay(_ sender: AnyObject?) {
         if let menuItem = sender as? NSMenuItem {
-            displays[menuItem.tag] = nil
+            virtualDisplays[menuItem.tag] = nil
             menuItem.menu?.removeItem(menuItem)
         }
     }
 
+    @objc func experiment(_ sender: AnyObject?) {
+        let configuration = NSWorkspace.OpenConfiguration()
+        configuration.createsNewApplicationInstance = true
+
+        if let url = URL(string: "vnc://ynk.local") {
+            NSWorkspace.shared.open(url, configuration: configuration) { application, error in
+                if error != nil {
+                    print("opening the vnc URL \(url) failed: \(error!)");
+                }
+            }
+        }
+    }
+
+    static func stringInDict(_ dict: [String: Data], _ key: String) -> String? {
+        if let d = dict[key] {
+           return String(data: d, encoding: .utf8)
+        }
+        return nil
+    }
+
     static func intInDict(_ dict: [String: Data], _ key: String) -> Int? {
-        if let d = dict[key],
-           let s = String(data: d, encoding: .utf8),
-           let n = Int(s) {
-            return n
+        if let s = stringInDict(dict, key) {
+            return Int(s)
         }
         return nil
     }
@@ -195,7 +249,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
             txtDict["width\(i)"] = "\(display.width)".data(using: .utf8)
             txtDict["height\(i)"] = "\(display.height)".data(using: .utf8)
             txtDict["ppi\(i)"] = "\(display.ppi)".data(using: .utf8)
-            let hiDPI = display.hiDPI ? 0 : 1
+            let hiDPI = display.hiDPI ? 1 : 0
             txtDict["hidpi\(i)"] = "\(hiDPI)".data(using: .utf8)
             txtDict["name\(i)"] = "\(display.description)".data(using: .utf8)
             i += 1
@@ -207,37 +261,44 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
     }
 
     func netService(_ sender: NetService, didUpdateTXTRecord data: Data) {
-        // print("Got updated TXT record of: \(sender.name): \(data.count) bytes");
+        print("Got updated TXT record of: \(sender.name): \(data.count) bytes");
         if sender.name != ns.name {
             let dict = NetService.dictionary(fromTXTRecord: data)
             if  let ndisplays = AppDelegate.intInDict(dict, "ndisplays") {
                 print("\(sender.name) has \(ndisplays) display(s)")
+
+                // Delete old menu entries for the peer's displays
+                for item in autoMenu.items {
+                    if let match = item.title.range(of: "^.* on \(sender.name)",
+                                                    options: .regularExpression) {
+                        if (!match.isEmpty) {
+                            peerDisplays[item.tag] = nil
+                            autoMenu.removeItem(item)
+                        }
+                    }
+                }
+
+                // Add new menu entries for them
                 for i in 0...ndisplays-1 {
                     if let width = AppDelegate.intInDict(dict, "width\(i)"),
                        let height = AppDelegate.intInDict(dict, "height\(i)"),
-                       let hiDPI = AppDelegate.intInDict(dict, "hidpi\(i)") {
-                        let hiDPIString = hiDPI == 0 ? "yes" : "no"
-                        print("  display \(i): \(width) x \(height), hiDPI: \(hiDPIString)")
+                       let ppi = AppDelegate.intInDict(dict, "ppi\(i)"),
+                       let hiDPI = AppDelegate.intInDict(dict, "hidpi\(i)"),
+                       let name = AppDelegate.stringInDict(dict, "name\(i)") {
+                        let hiDPIString = hiDPI == 0 ? "" : " (Retina)"
+                        let title = "\(name) on \(sender.name): \(width) x \(height)\(hiDPIString)"
+                        let item = NSMenuItem(title: title, action: #selector(newAutoDisplay(_:)), keyEquivalent: "")
+                        item.tag = peerDisplayCounter
+                        peerDisplays[peerDisplayCounter] = PeerDisplay(number: peerDisplayCounter,
+                                                                       peer: sender.name,
+                                                                       resolution: Resolution(width, height, ppi, hiDPI != 0, title))
+                        autoMenu.addItem(item)
+                        peerDisplayCounter += 1
                     }
                 }
             }
         }
     }
-
-    #if false
-
-    func netService(_ sender: NetService, didNotResolve errorDict: [String : NSNumber]) {
-        print("Did no resolve: \(sender)")
-    }
-
-    func netServiceDidResolveAddress(_ sender: NetService) {
-        print("Resolved: \(sender)")
-        if let data = sender.txtRecordData() {
-            print("TXT record length: \(data.count)")
-        }
-    }
-
-    #endif
 
     func netServiceDidStop(_ sender: NetService) {
         print("Stopped: \(sender)")
