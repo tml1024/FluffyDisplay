@@ -66,8 +66,8 @@ After all, I wrote this in a weekend, somebody else can do it too.
 That might then be distributed as a non-sandboxed app that works in a
 much more automated fashion. But end-users should then be aware that
 such an app could potentially be a very large security risk. When I
-start distributing a ready-built app, it will be sigitally signed and
-securely timestamped,, notarized, and run sandboxed.
+start distributing a ready-built app, it will be digitally signed,
+securely timestamped, notarized, and run sandboxed.
 
 Will it work on macOS 11?
 -------------------------
