@@ -93,7 +93,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
 
     var discoveredServices = [String: NetService]()
 
-    let debug = amIBeingDebugged()
+    let beingDebugged = amIBeingDebugged()
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         let maxDisplays: Int32 = 5
@@ -195,6 +195,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
                     deleteMenuItem.tag = virtualDisplayCounter
                     deleteMenu.addItem(deleteMenuItem)
                     virtualDisplayCounter += 1
+                    advertiseRequestToConnect(from: peerDisplay.peer, on: ns)
                 }
             }
         }
@@ -207,14 +208,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
         }
     }
 
-    static func stringInDict(_ dict: [String: Data], _ key: String) -> String? {
+    func stringInDict(_ dict: [String: Data], _ key: String) -> String? {
         if let d = dict[key] {
            return String(data: d, encoding: .utf8)
         }
         return nil
     }
 
-    static func intInDict(_ dict: [String: Data], _ key: String) -> Int? {
+    func intInDict(_ dict: [String: Data], _ key: String) -> Int? {
         if let s = stringInDict(dict, key) {
             return Int(s)
         }
@@ -230,18 +231,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
         return (info.kp_proc.p_flag & P_TRACED) != 0
     }
 
-    // NetServiceDelegate
-
-    func netService(_ sender: NetService, didNotPublish errorDict: [String : NSNumber]) {
-        if debug {
-            print("Did not publish: \(sender), because: \(errorDict)")
-        }
-    }
-
-    func netServiceDidPublish(_ sender: NetService) {
-        if debug {
-            print("Published: \(sender)")
-        }
+    func advertiseDisplays(service: NetService) {
         var txtDict = [String: Data]()
         var i = 0
         txtDict["ndisplays"] = "\(activeDisplays.count)".data(using: .utf8)
@@ -254,84 +244,137 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
             txtDict["name\(i)"] = "\(display.description)".data(using: .utf8)
             i += 1
         }
-        let txtData = NetService.data(fromTXTRecord: txtDict)
-        if !sender.setTXTRecord(txtData) {
-            if debug {
-                print("Did not set txtRecord")
-            }
+        setTXTRecord(type: "displays", with: txtDict, on: service)
+    }
+
+    func advertiseRequestToConnect(from source: String, on service: NetService) {
+        let txtDict = ["source": source.data(using: .utf8)!];
+        setTXTRecord(type: "request", with: txtDict, on: service)
+    }
+
+    func setTXTRecord(type: String, with txtDict: [String: Data], on service: NetService) {
+        var dict = txtDict
+        dict["--type"] = type.data(using: .utf8)
+        let txtData = NetService.data(fromTXTRecord: dict)
+        if service.setTXTRecord(txtData) {
+            debug("Set txtRecord \(txtDictAsString(dict))")
+        } else {
+            debug("Did not set txtRecord \(txtDictAsString(dict))")
         }
     }
 
-    func netService(_ sender: NetService, didUpdateTXTRecord data: Data) {
-        if debug {
-            print("Got updated TXT record of: \(sender.name): \(data.count) bytes");
+    func txtDictAsString(_ txtDict: [String: Data]) -> String {
+        var result = ""
+        for key in txtDict.keys.sorted() {
+            if result != "" {
+                result += ","
+            }
+            result += key + "=" + String(decoding: txtDict[key]!, as: UTF8.self)
         }
+        return result
+    }
+
+    func debug(_ string: String) {
+        if beingDebugged || ProcessInfo.processInfo.environment["FLUFFYDISPLAY_DEBUG"] != nil {
+            print(string)
+        }
+    }
+
+    // NetServiceDelegate
+
+    func netService(_ sender: NetService, didNotPublish errorDict: [String : NSNumber]) {
+        debug("Did not publish: \(sender), because: \(errorDict)")
+    }
+
+    func netServiceDidPublish(_ sender: NetService) {
+        advertiseDisplays(service: sender)
+        debug("Published: \(sender)")
+    }
+
+    func netService(_ sender: NetService, didUpdateTXTRecord data: Data) {
+        debug("Got updated TXT record of: \(sender.name): \(data.count) bytes");
+
         if sender.name != ns.name {
             let dict = NetService.dictionary(fromTXTRecord: data)
-            if  let ndisplays = AppDelegate.intInDict(dict, "ndisplays") {
-                if debug {
-                    print("\(sender.name) has \(ndisplays) display(s)")
-                }
+            debug("\(txtDictAsString(dict))")
 
-                // Delete old menu entries for the peer's displays
-                for item in autoMenu.items {
-                    if let match = item.title.range(of: "^.* on \(sender.name)",
-                                                    options: .regularExpression) {
-                        if (!match.isEmpty) {
-                            peerDisplays[item.tag] = nil
-                            autoMenu.removeItem(item)
+            if let type = stringInDict(dict, "--type") {
+                switch type {
+                case "displays":
+                    if  let ndisplays = intInDict(dict, "ndisplays") {
+                        debug("\(sender.name) has \(ndisplays) display(s)")
+
+                        // Delete old menu entries for the peer's displays
+                        for item in autoMenu.items {
+                            if let match = item.title.range(of: "^.* on \(sender.name)",
+                                                            options: .regularExpression) {
+                                if (!match.isEmpty) {
+                                    peerDisplays[item.tag] = nil
+                                    autoMenu.removeItem(item)
+                                }
+                            }
+                        }
+
+                        // Add new menu entries for them
+                        for i in 0...ndisplays-1 {
+                            if let width = intInDict(dict, "width\(i)"),
+                               let height = intInDict(dict, "height\(i)"),
+                               let ppi = intInDict(dict, "ppi\(i)"),
+                               let hiDPI = intInDict(dict, "hidpi\(i)"),
+                               let name = stringInDict(dict, "name\(i)") {
+                                let hiDPIString = hiDPI == 0 ? "" : " (Retina)"
+                                let title = "\(name) on \(sender.name): \(width) x \(height)\(hiDPIString)"
+                                let item = NSMenuItem(title: title, action: #selector(newAutoDisplay(_:)), keyEquivalent: "")
+                                item.tag = peerDisplayCounter
+                                peerDisplays[peerDisplayCounter] = PeerDisplay(number: peerDisplayCounter,
+                                                                               peer: sender.name,
+                                                                               resolution: Resolution(width, height, ppi, hiDPI != 0, title))
+                                autoMenu.addItem(item)
+                                peerDisplayCounter += 1
+                            }
                         }
                     }
-                }
+                case "request":
+                    if let source = stringInDict(dict, "source") {
+                        if source == ns.name {
+                            debug("Will open Screen Sharing to \(sender.name).\(sender.domain)")
+                            let configuration = NSWorkspace.OpenConfiguration()
+                            configuration.createsNewApplicationInstance = true
 
-                // Add new menu entries for them
-                for i in 0...ndisplays-1 {
-                    if let width = AppDelegate.intInDict(dict, "width\(i)"),
-                       let height = AppDelegate.intInDict(dict, "height\(i)"),
-                       let ppi = AppDelegate.intInDict(dict, "ppi\(i)"),
-                       let hiDPI = AppDelegate.intInDict(dict, "hidpi\(i)"),
-                       let name = AppDelegate.stringInDict(dict, "name\(i)") {
-                        let hiDPIString = hiDPI == 0 ? "" : " (Retina)"
-                        let title = "\(name) on \(sender.name): \(width) x \(height)\(hiDPIString)"
-                        let item = NSMenuItem(title: title, action: #selector(newAutoDisplay(_:)), keyEquivalent: "")
-                        item.tag = peerDisplayCounter
-                        peerDisplays[peerDisplayCounter] = PeerDisplay(number: peerDisplayCounter,
-                                                                       peer: sender.name,
-                                                                       resolution: Resolution(width, height, ppi, hiDPI != 0, title))
-                        autoMenu.addItem(item)
-                        peerDisplayCounter += 1
+                            if let url = URL(string: "vnc://\(sender.name).\(sender.domain)") {
+                                NSWorkspace.shared.open(url, configuration: configuration) { application, error in
+                                    if error != nil {
+                                        self.debug("Opening the URL \(url) failed: \(error!)");
+                                    }
+                                }
+                            }
+                        }
                     }
+                default:
+                    debug("Unhandled TXT record type \(type)")
                 }
             }
         }
     }
 
     func netServiceDidStop(_ sender: NetService) {
-        if debug {
-            print("Stopped: \(sender)")
-        }
+        debug("Stopped: \(sender)")
     }
 
     func netService(_ sender: NetService, didAcceptConnectionWith inputStream: InputStream, outputStream: OutputStream) {
-        if debug {
-            print("Accepted connection: \(sender)")
-        }
+        debug("Accepted connection: \(sender)")
         inputStream.close()
     }
 
     // NetServiceBrowserDelegate
 
     func netServiceBrowser(_ browser: NetServiceBrowser, didNotSearch errorDict: [String : NSNumber]) {
-        if debug {
-            print("Did not search: \(errorDict)")
-        }
+        debug("Did not search: \(errorDict)")
     }
 
     func netServiceBrowser(_ browser: NetServiceBrowser, didFind service: NetService, moreComing: Bool) {
         if service.name != ns.name {
-            if debug {
-                print("Found: \(service.name)")
-            }
+            debug("Found: \(service.name)")
             discoveredServices[service.name] = service;
             service.delegate = self
             service.startMonitoring()
@@ -340,9 +383,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
 
     func netServiceBrowser(_ browser: NetServiceBrowser, didRemove service: NetService, moreComing: Bool) {
         if service.name != ns.name {
-            if debug {
-                print("Removed: \(service.name)")
-            }
+            debug("Removed: \(service.name)")
             if discoveredServices[service.name] != nil {
                 discoveredServices[service.name] = nil
             }
@@ -353,9 +394,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
     }
 
     func netServiceBrowserDidStopSearch(_ browser: NetServiceBrowser) {
-        if debug {
-            print("Did stop: \(browser)")
-        }
+        debug("Did stop: \(browser)")
     }
 
 }
