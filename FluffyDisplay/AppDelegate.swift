@@ -174,6 +174,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
                     deleteMenuItem.tag = virtualDisplayCounter
                     deleteMenu.addItem(deleteMenuItem)
                     virtualDisplayCounter += 1
+                    // If we have created a new virtual display, this FluffyDisplay clearly is the
+                    // "main" Mac and no other Mac will use a physical display on this Mac. So we
+                    // don't need to advertise our displays.
+                    ns.setTXTRecord(nil)
                 }
             }
         }
@@ -195,6 +199,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
                     deleteMenuItem.tag = virtualDisplayCounter
                     deleteMenu.addItem(deleteMenuItem)
                     virtualDisplayCounter += 1
+                    // Advertise that we want the other Mac to connect to our new virtual display
+                    // with Screen Sharing.
                     advertiseRequestToConnect(from: peerDisplay.peer, on: ns)
                 }
             }
@@ -205,6 +211,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
         if let menuItem = sender as? NSMenuItem {
             virtualDisplays[menuItem.tag] = nil
             menuItem.menu?.removeItem(menuItem)
+            // We can clear our TXT record now
+            ns.setTXTRecord(nil)
         }
     }
 
@@ -231,7 +239,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
         return (info.kp_proc.p_flag & P_TRACED) != 0
     }
 
-    func advertiseDisplays(service: NetService) {
+    func advertiseDisplays(on service: NetService) {
         var txtDict = [String: Data]()
         var i = 0
         txtDict["ndisplays"] = "\(activeDisplays.count)".data(using: .utf8)
@@ -287,7 +295,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
     }
 
     func netServiceDidPublish(_ sender: NetService) {
-        advertiseDisplays(service: sender)
+        advertiseDisplays(on: sender)
         debug("Published: \(sender)")
     }
 
