@@ -84,8 +84,13 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
 
     var statusBarItem: NSStatusItem!
 
-    let deleteMenu = NSMenu()
+    let newSubmenu = NSMenuItem(title: "New", action: nil, keyEquivalent: "")
+
+    let autoSubmenu = NSMenuItem(title: "New on peer", action: nil, keyEquivalent: "")
     let autoMenu = NSMenu()
+
+    let deleteSubmenu = NSMenuItem(title: "Delete", action: nil, keyEquivalent: "")
+    let deleteMenu = NSMenu()
 
     let ns = NetService(domain: "local.", type: "_fi-iki-tml-flfd._tcp", name: "\(Host.current().localizedName ?? "?")")
     let browser = NetServiceBrowser()
@@ -128,8 +133,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
         }
 
         let menu = NSMenu()
-
-        let newMenuItem = NSMenuItem(title: "New", action: nil, keyEquivalent: "")
         let newMenu = NSMenu()
 
         var i = 0
@@ -140,16 +143,18 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
             i += 1
         }
 
-        newMenuItem.submenu = newMenu
-        menu.addItem(newMenuItem)
+        newSubmenu.submenu = newMenu
+        menu.addItem(newSubmenu)
 
-        let autoMenuItem = NSMenuItem(title: "New for peer display", action: nil, keyEquivalent: "")
-        autoMenuItem.submenu = autoMenu
-        menu.addItem(autoMenuItem)
+        autoSubmenu.submenu = autoMenu
+        menu.addItem(autoSubmenu)
 
-        let deleteMenuItem = NSMenuItem(title: "Delete", action: nil, keyEquivalent: "")
-        deleteMenuItem.submenu = deleteMenu
-        menu.addItem(deleteMenuItem)
+        deleteSubmenu.submenu = deleteMenu
+        menu.addItem(deleteSubmenu)
+
+        // When we start we haven't found any other Macs and we don't have anythung to delete.
+        autoSubmenu.isHidden = true
+        deleteSubmenu.isHidden = true
 
         menu.addItem(NSMenuItem.separator())
         menu.addItem(NSMenuItem(title: "Quit FluffyDisplay", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
@@ -168,12 +173,15 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
                                                       resolution.hiDPI,
                                                       name) {
                     virtualDisplays[virtualDisplayCounter] = VirtualDisplay(number: virtualDisplayCounter, display: display)
-                    let deleteMenuItem = NSMenuItem(title: "\(name) (\(resolution.width)×\(resolution.height))",
+                    let menuItem = NSMenuItem(title: "\(name) (\(resolution.width)×\(resolution.height))",
                                                     action: #selector(deleteDisplay(_:)),
                                                     keyEquivalent: "")
-                    deleteMenuItem.tag = virtualDisplayCounter
-                    deleteMenu.addItem(deleteMenuItem)
+                    menuItem.tag = virtualDisplayCounter
+                    deleteMenu.addItem(menuItem)
+                    deleteSubmenu.isHidden = false
+
                     virtualDisplayCounter += 1
+
                     // If we have created a new virtual display, this FluffyDisplay clearly is the
                     // "main" Mac and no other Mac will use a physical display on this Mac. So we
                     // don't need to advertise our displays.
@@ -193,12 +201,15 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
                                                       peerDisplay.resolution.hiDPI,
                                                       peerDisplay.resolution.description) {
                     virtualDisplays[virtualDisplayCounter] = VirtualDisplay(number: virtualDisplayCounter, display: display)
-                    let deleteMenuItem = NSMenuItem(title: peerDisplay.resolution.description,
-                                                    action: #selector(deleteDisplay(_:)),
-                                                    keyEquivalent: "")
-                    deleteMenuItem.tag = virtualDisplayCounter
-                    deleteMenu.addItem(deleteMenuItem)
+                    let menuItem = NSMenuItem(title: peerDisplay.resolution.description,
+                                              action: #selector(deleteDisplay(_:)),
+                                              keyEquivalent: "")
+                    menuItem.tag = virtualDisplayCounter
+                    deleteMenu.addItem(menuItem)
+                    deleteSubmenu.isHidden = false
+
                     virtualDisplayCounter += 1
+
                     // Advertise that we want the other Mac to connect to our new virtual display
                     // with Screen Sharing.
                     advertiseRequestToConnect(from: peerDisplay.peer, on: ns)
@@ -338,6 +349,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
                                                                                peer: sender.name,
                                                                                resolution: Resolution(width, height, ppi, hiDPI != 0, title))
                                 autoMenu.addItem(item)
+                                autoSubmenu.isHidden = false
                                 peerDisplayCounter += 1
                             }
                         }
@@ -345,6 +357,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
                 case "request":
                     if let source = stringInDict(dict, "source") {
                         if source == ns.name {
+                            // We now know that this Mac is not the "main" one, so we have no need
+                            // for the newSubmenu or deleteSubmenu on this Mac.
+                            newSubmenu.isHidden = true
+                            deleteSubmenu.isHidden = true
+
                             debug("Will open Screen Sharing to \(sender.name).\(sender.domain)")
                             let configuration = NSWorkspace.OpenConfiguration()
                             configuration.createsNewApplicationInstance = true
@@ -397,6 +414,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
             }
             if let item = autoMenu.item(withTitle: service.name) {
                 autoMenu.removeItem(item)
+                if autoMenu.numberOfItems == 0 {
+                    autoSubmenu.isHidden = true
+                }
             }
         }
     }
