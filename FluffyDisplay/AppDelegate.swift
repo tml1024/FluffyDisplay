@@ -358,8 +358,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
                     if let source = stringInDict(dict, "source") {
                         if source == ns.name {
                             // We now know that this Mac is not the "main" one, so we have no need
-                            // for the newSubmenu or deleteSubmenu on this Mac.
+                            // for the newSubmenu, autoSubmenu, or deleteSubmenu on this Mac.
                             newSubmenu.isHidden = true
+                            autoSubmenu.isHidden = true
                             deleteSubmenu.isHidden = true
 
                             debug("Will open Screen Sharing to \(sender.name).\(sender.domain)")
