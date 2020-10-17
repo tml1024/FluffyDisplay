@@ -79,8 +79,8 @@ code and producing something similar. That might then be distributed
 as a non-sandboxed app that works in a much more automated fashion.
 But end-users should then be aware that such an app could potentially
 be a very large security risk. The FluffyDisplay.app released here
-(inside the .zip archive(s) is be digitally signed, securely
-timestamped, notarized, and runs sandboxed.
+(inside the .zip archive(s) is digitally signed, securely timestamped,
+notarized, and runs sandboxed.
 
 Will this work on macOS 11?
 ---------------------------
