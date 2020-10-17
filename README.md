@@ -70,18 +70,17 @@ sandboxed app.
 
 Sandboxing and notarization is something I definitely want to keep.
 End-users should not run random non-sandboxed apps downloaded from the
-Internet, period. I don't trust such apps, and it would be rude to
-expect people who download an ready-built FluffyDisplay app in the
-future to trust it.
+Internet, period. I don't trust such apps, and correspondingly, it
+would be rude to expect people who download a ready-built
+FluffyDisplay app to trust it.
 
 As this is open source, I can't prevent a third party from taking this
-code (or just taking inspiration) and producing something similar.
-After all, I wrote this in a weekend, somebody else can do it too.
-That might then be distributed as a non-sandboxed app that works in a
-much more automated fashion. But end-users should then be aware that
-such an app could potentially be a very large security risk. When I
-start distributing a ready-built app, it will be digitally signed,
-securely timestamped, notarized, and run sandboxed.
+code and producing something similar. That might then be distributed
+as a non-sandboxed app that works in a much more automated fashion.
+But end-users should then be aware that such an app could potentially
+be a very large security risk. The FluffyDisplay.app released here
+(inside the .zip archive(s) is be digitally signed, securely
+timestamped, notarized, and runs sandboxed.
 
 Will this work on macOS 11?
 ---------------------------
