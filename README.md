@@ -23,10 +23,26 @@ virtual one is on the side of the built-in display where you put your
 old iMac.
 
 You then use Screen Sharing app on the other Mac to connect to your
-main Mac, and specifically select in the View menu to view the
-"virtual" monitor. You switch Screen Sharing to observation mode and
-to full-screen. You then don't need to touch the mouse, trackpad or
-keyboard on the other Mac until you want to close the connection.
+main Mac, and specifically select in Screen Sharing's View menu to
+view the "virtual" monitor. You switch Screen Sharing to observation
+mode and to full-screen. You then don't need to touch the mouse,
+trackpad or keyboard on the other Mac until you want to close the
+connection. (Or until the other Mac starts its screen saver.)
+
+You can also run FluffyDisplay also on the other Mac. In that case the
+main Mac notices that and automatically adds a menu "New on peer"
+(suggestions for better but still short name welcome) under which will
+appear the displays of other Macs running FluffyDisplay. When you
+choose one of those, FluffyDisplay on that other Mac will
+automatically start ScreenSharing to connect to your main Mac.
+
+You will still have to switch to observation mode and to full-screen,
+etc, this is not (and can not be) fully automated. It would be lovely
+if Screen Sharing could be passed query parameters in the vnc: URL
+that would tell it which display to show, to switch to observation
+mode, and to full-screen. But apparently no. Having those settings in
+a .vncloc file doesn't seem to work either.
+
 
 Not useful use case
 -------------------
@@ -49,10 +65,8 @@ Security aspects
 ----------------
 
 I suspect that the use of FluffyDisplay can't be made much simpler or
-automated while still being able to run FluffyDisplay as a sandboxed
-app. (With automating, I mean that you wouldn't need to start Screen
-Sharing manually and select the right display to view in Screen
-Sharing, but that it would happen automatically.)
+more automated while still being able to run FluffyDisplay as a
+sandboxed app.
 
 Sandboxing and notarization is something I definitely want to keep.
 End-users should not run random non-sandboxed apps downloaded from the
@@ -69,8 +83,8 @@ such an app could potentially be a very large security risk. When I
 start distributing a ready-built app, it will be digitally signed,
 securely timestamped, notarized, and run sandboxed.
 
-Will it work on macOS 11?
--------------------------
+Will this work on macOS 11?
+---------------------------
 
 I don't know. Quite possibly not, in which case this has been just an
 interesting experiment with little permanent usefulness.
@@ -79,19 +93,12 @@ interesting experiment with little permanent usefulness.
 What if Apple at some stage starts providing the same functionality
 -------------------------------------------------------------------
 
-(In the same way as Sidecar, for use with iPad.) I would welcome that
-very much. They would be able to make the user experience much
-smoother than what this tool offers.
+(In the same way as macOS has Sidecar, for using an iPad as a
+secondary display.) I would welcome that very much. They would be able
+to make the user experience much smoother than what this tool offers.
 
-Will there be binaries?
------------------------
-
-Sure, once my dog-fooding is complete. Also, see the security points
-above.
-
-
-In the Mac App Store?
----------------------
+Will this bs in the Mac App Store?
+----------------------------------
 
 No way. It uses undocumented CoreGraphics APIs and requires the
 com.apple.security.temporary-exception.mach-lookup.global-name
