@@ -96,7 +96,7 @@ What if Apple at some stage starts providing the same functionality
 secondary display.) I would welcome that very much. They would be able
 to make the user experience much smoother than what this tool offers.
 
-Will this bs in the Mac App Store?
+Will this be in the Mac App Store?
 ----------------------------------
 
 No way. It uses undocumented CoreGraphics APIs and requires the
