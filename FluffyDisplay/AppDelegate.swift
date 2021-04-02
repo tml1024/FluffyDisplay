@@ -36,29 +36,37 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
 
     let predefResolutions: [Resolution] = [
       // List from https://en.wikipedia.org/wiki/Graphics_display_resolution and
-      // https://www.theverge.com/tldr/2016/3/21/11278192/apple-iphone-ipad-screen-sizes-pixels-density-so-many-choices
+      // https://www.theverge.com/tldr/2016/3/21/11278192/apple-iphone-ipad-screen-sizes-pixels-density-so-many-choices and
+      // https://www.apple.com/ipad/compare
 
       Resolution(6016, 3384, 218, true,  "Apple Pro Display XDR"),
       Resolution(5120, 2880, 218, true,  "27-inch iMac with Retina 5K display"),
       Resolution(4096, 2304, 219, true,  "21.5-inch iMac with Retina 4K display"),
       Resolution(3840, 2400, 200, true,  "WQUXGA"),
       Resolution(3840, 2160, 200, true,  "UHD"),
-      Resolution(3840, 1600, 200, true,  "WQHD+, UW-QHD+"),
-      Resolution(3840, 1080, 200, true,  "DFHD"),
-      Resolution(3072, 1920, 226, true,  "16-inch MacBook Pro with Retina display"),
+      Resolution(3840, 1600, 200, true,  "WQHD+, UW-QHD+"), 
+      Resolution(3072, 1920, 226, true,  "16-inch MacBook Pro with Retina display"), 
+      Resolution(2732, 2048, 264, true,  "iPad Pro 12.9‑inch (1st/2nd/3th/4th generation)"), 
       Resolution(2880, 1800, 220, true,  "15.4-inch MacBook Pro with Retina display"),
+      Resolution(3840, 1080, 200, true,  "DFHD"),
       Resolution(2560, 1600, 227, true,  "WQXGA, 13.3-inch MacBook Pro with Retina display"),
+      Resolution(2388, 1668, 264, true,  "iPad Pro 11‑in. (1st/2nd generation)"), 
+      Resolution(2360, 1640, 264, true,  "iPad Air (4th generation)"),
+      Resolution(2224, 1668, 264, true,  "iPad Pro 10.5‑inch/iPad Air (3rd generation)"),
       Resolution(2560, 1440, 109, false, "27-inch Apple Thunderbolt display"),
+      Resolution(2160, 1620, 264, false, "iPad (7/8th generation)"),
       Resolution(2304, 1440, 226, true,  "12-inch MacBook with Retina display"),
       Resolution(2048, 1536, 150, false, "QXGA"),
+      Resolution(2048, 1536, 264, false, "iPad mini (5th generation)/iPad Pro 9.7‑inch/iPad Air 1/2/iPad (5/6th generation)"),
+      Resolution(2048, 1536, 326, false, "iPad mini 2/3/4"),
       Resolution(2048, 1152, 150, false, "QWXGA"),
       Resolution(1920, 1200, 150, false, "WUXGA"),
-      Resolution(1600, 1200, 125, false, "UXGA"),
       Resolution(1920, 1080, 102, false, "HD, 21.5-inch iMac"),
-      Resolution(1440, 900,  127, false, "WXGA+, 13.3-inch MacBook Air"),
+      Resolution(1600, 1200, 125, false, "UXGA"),
       Resolution(1400, 1050, 125, false, "SXGA+"),
-      Resolution(1366, 768,  135, false, "11.6-inch MacBook Air"),
       Resolution(1280, 1024, 100, false, "SXGA"),
+      Resolution(1440, 900,  127, false, "WXGA+, 13.3-inch MacBook Air"),
+      Resolution(1366, 768,  135, false, "11.6-inch MacBook Air"),
       Resolution(1280, 800,  113, false, "13.3-inch MacBook Pro"),
     ]
 
@@ -111,10 +119,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
                 // Just use the current mode of the display
                 if let mode = CGDisplayCopyDisplayMode(activeDisplayIDs[Int(i)]) {
                     let size = CGDisplayScreenSize(activeDisplayIDs[Int(i)])
-                    activeDisplays.append(Resolution(Int32(mode.pixelWidth), Int32(mode.pixelHeight),
+                    activeDisplays.append(Resolution(	Int32(mode.pixelWidth), Int32(mode.pixelHeight),
                                                      Int32(CGFloat(mode.pixelWidth) / size.width * 25.4),
                                                      mode.pixelWidth > mode.width,
-                                                     CGDisplayIsBuiltin(activeDisplayIDs[Int(i)]) != 0 ? "Built-in Display" : "Display #\(i)"))
+                                                     CGDisplayIsBuiltin(	activeDisplayIDs[Int(i)]) != 0 ? "Built-in Display" : "Display #\(i)"))
                 }
             }
         }
@@ -347,7 +355,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
                                 item.tag = peerDisplayCounter
                                 peerDisplays[peerDisplayCounter] = PeerDisplay(number: peerDisplayCounter,
                                                                                peer: sender.name,
-                                                                               resolution: Resolution(width, height, ppi, hiDPI != 0, title))
+                                                                               resolution: Resolution(	width, height, ppi, hiDPI != 0, title))
                                 autoMenu.addItem(item)
                                 autoSubmenu.isHidden = false
                                 peerDisplayCounter += 1
@@ -364,11 +372,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
                             deleteSubmenu.isHidden = true
 
                             debug("Will open Screen Sharing to \(sender.name).\(sender.domain)")
-                            let configuration = NSWorkspace.OpenConfiguration()
+                            let configuration = NSWorkspace.OpenConfiguration(	)
                             configuration.createsNewApplicationInstance = true
 
                             if let url = URL(string: "vnc://\(sender.name).\(sender.domain)") {
-                                NSWorkspace.shared.open(url, configuration: configuration) { application, error in
+                                NSWorkspace.shared.open(	url, configuration: configuration) { application, error in
                                     if error != nil {
                                         self.debug("Opening the URL \(url) failed: \(error!)");
                                     }
