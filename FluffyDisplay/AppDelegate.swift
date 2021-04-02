@@ -119,10 +119,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
                 // Just use the current mode of the display
                 if let mode = CGDisplayCopyDisplayMode(activeDisplayIDs[Int(i)]) {
                     let size = CGDisplayScreenSize(activeDisplayIDs[Int(i)])
-                    activeDisplays.append(Resolution(	Int32(mode.pixelWidth), Int32(mode.pixelHeight),
+                    activeDisplays.append(Resolution(Int32(mode.pixelWidth), Int32(mode.pixelHeight),
                                                      Int32(CGFloat(mode.pixelWidth) / size.width * 25.4),
                                                      mode.pixelWidth > mode.width,
-                                                     CGDisplayIsBuiltin(	activeDisplayIDs[Int(i)]) != 0 ? "Built-in Display" : "Display #\(i)"))
+                                                     CGDisplayIsBuiltin(activeDisplayIDs[Int(i)]) != 0 ? "Built-in Display" : "Display #\(i)"))
                 }
             }
         }
@@ -355,7 +355,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
                                 item.tag = peerDisplayCounter
                                 peerDisplays[peerDisplayCounter] = PeerDisplay(number: peerDisplayCounter,
                                                                                peer: sender.name,
-                                                                               resolution: Resolution(	width, height, ppi, hiDPI != 0, title))
+                                                                               resolution: Resolution(width, height, ppi, hiDPI != 0, title))
                                 autoMenu.addItem(item)
                                 autoSubmenu.isHidden = false
                                 peerDisplayCounter += 1
@@ -372,11 +372,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
                             deleteSubmenu.isHidden = true
 
                             debug("Will open Screen Sharing to \(sender.name).\(sender.domain)")
-                            let configuration = NSWorkspace.OpenConfiguration(	)
+                            let configuration = NSWorkspace.OpenConfiguration()
                             configuration.createsNewApplicationInstance = true
 
                             if let url = URL(string: "vnc://\(sender.name).\(sender.domain)") {
-                                NSWorkspace.shared.open(	url, configuration: configuration) { application, error in
+                                NSWorkspace.shared.open(url, configuration: configuration) { application, error in
                                     if error != nil {
                                         self.debug("Opening the URL \(url) failed: \(error!)");
                                     }
