@@ -85,8 +85,7 @@ notarized, and runs sandboxed.
 Will this work on macOS 11?
 ---------------------------
 
-I don't know. Quite possibly not, in which case this has been just an
-interesting experiment with little permanent usefulness.
+It works on Big Sur.
 
 
 What if Apple at some stage starts providing the same functionality
