@@ -82,13 +82,6 @@ be a very large security risk. The FluffyDisplay.app released here
 (inside the .zip archive(s) is digitally signed, securely timestamped,
 notarized, and runs sandboxed.
 
-Will this work on macOS 11?
----------------------------
-
-I don't know. Quite possibly not, in which case this has been just an
-interesting experiment with little permanent usefulness.
-
-
 What if Apple at some stage starts providing the same functionality
 -------------------------------------------------------------------
 
