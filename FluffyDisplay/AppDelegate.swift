@@ -55,6 +55,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
       Resolution(1920, 1200, 150, false, "WUXGA"),
       Resolution(1600, 1200, 125, false, "UXGA"),
       Resolution(1920, 1080, 102, false, "HD, 21.5-inch iMac"),
+      Resolution(1680, 1050, 99,  false, "WSXGA+, Apple Cinema Display (20-inch), 20-inch iMac"),
       Resolution(1440, 900,  127, false, "WXGA+, 13.3-inch MacBook Air"),
       Resolution(1400, 1050, 125, false, "SXGA+"),
       Resolution(1366, 768,  135, false, "11.6-inch MacBook Air"),
