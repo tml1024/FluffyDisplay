@@ -225,6 +225,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
             menuItem.menu?.removeItem(menuItem)
             // We can clear our TXT record now
             ns.setTXTRecord(nil)
+            
+            if deleteMenu.numberOfItems == 0 {
+                deleteSubmenu.isHidden = true
+            }
         }
     }
 
