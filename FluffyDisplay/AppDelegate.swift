@@ -39,7 +39,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
       // https://www.theverge.com/tldr/2016/3/21/11278192/apple-iphone-ipad-screen-sizes-pixels-density-so-many-choices
 
       Resolution(6016, 3384, 218, true,  "Apple Pro Display XDR"),
-      Resolution(5120, 2880, 218, true,  "27-inch iMac with Retina 5K display"),
+      Resolution(5120, 2880, 218, true,  "UHD+, 27-inch Apple Studio Display, 27-inch iMac with Retina 5K display"),
       Resolution(4096, 2304, 219, true,  "21.5-inch iMac with Retina 4K display"),
       Resolution(3840, 2400, 200, true,  "WQUXGA"),
       Resolution(3840, 2160, 200, true,  "UHD"),
