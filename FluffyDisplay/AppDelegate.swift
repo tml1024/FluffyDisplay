@@ -52,7 +52,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NetServiceDelegate, NetServi
       Resolution(2304, 1440, 226, true,  "12-inch MacBook with Retina display"),
       Resolution(2048, 1536, 150, false, "QXGA"),
       Resolution(2048, 1152, 150, false, "QWXGA"),
-      Resolution(1920, 1200, 150, false, "WUXGA"),
+      Resolution(1920, 1200, 98,  false, "WUXGA, 23-inch Apple Cinema HD Display"),
       Resolution(1600, 1200, 125, false, "UXGA"),
       Resolution(1920, 1080, 102, false, "HD, 21.5-inch iMac"),
       Resolution(1680, 1050, 99,  false, "WSXGA+, Apple Cinema Display (20-inch), 20-inch iMac"),
