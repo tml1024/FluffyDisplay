@@ -39,9 +39,9 @@ id createVirtualDisplay(int width, int height, int ppi, BOOL hiDPI, NSString *na
     descriptor.maxPixelsHigh = height;
     descriptor.maxPixelsWide = width;
     descriptor.sizeInMillimeters = CGSizeMake(25.4 * width / ppi, 25.4 * height / ppi);
-    descriptor.serialNum = 0;
-    descriptor.productID = 0;
-    descriptor.vendorID = 0;
+    descriptor.serialNum = 1;
+    descriptor.productID = 1;
+    descriptor.vendorID = 1;
 
     CGVirtualDisplay *display = [[CGVirtualDisplay alloc] initWithDescriptor:descriptor];
 
